@@ -8,7 +8,10 @@ import os
 class Database:
     def __init__(self, db_path: str = None):
         self.db_path = db_path or settings.DATABASE_PATH
-        os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
+        db_dir = os.path.dirname(self.db_path)
+        if db_dir and not os.path.exists(db_dir):
+            os.makedirs(db_dir, exist_ok=True)
+            print(f"Created database directory: {db_dir}")
 
     def get_connection(self):
         conn = sqlite3.connect(self.db_path)
@@ -21,6 +24,7 @@ class Database:
         return conn
 
     def init_database(self):
+        print(f"Initializing database at: {self.db_path}")
         conn = self.get_connection()
         cursor = conn.cursor()
 
@@ -99,8 +103,9 @@ class Database:
 
         conn.commit()
         conn.close()
+        print("Database tables created successfully")
 
-    def create_admin_user(self, username: str, password_hash: str):
+    def create_admin_user(self, username: str, password_hash: str) -> bool:
         conn = self.get_connection()
         cursor = conn.cursor()
         try:
@@ -109,8 +114,14 @@ class Database:
                 (username, password_hash)
             )
             conn.commit()
+            return cursor.rowcount > 0
         finally:
             conn.close()
+
+    def admin_user_exists(self, username: str) -> bool:
+        """Check if admin user exists"""
+        user = self.get_admin_user(username)
+        return user is not None
 
     def get_admin_user(self, username: str) -> Optional[Dict]:
         conn = self.get_connection()

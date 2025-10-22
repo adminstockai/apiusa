@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "your-secret-key-change-in-production-min-32-chars-long"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 480
-    DATABASE_PATH: str = "./data/app.db"
+    DATABASE_PATH: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "app.db")
     DEFAULT_ADMIN_USERNAME: str = "adsadmin"
     DEFAULT_ADMIN_PASSWORD: str = "Mm123567"
     DEFAULT_WHATSAPP_URL: str = "https://api.whatsapp.com/send/?phone=14433589251&text=Hi"

@@ -5,6 +5,8 @@ from fastapi.responses import JSONResponse, FileResponse
 import os
 from app.routers import api, admin_api, admin_pages
 from app.database import db
+from app.auth import get_password_hash
+from app.config import settings
 
 app = FastAPI(
     title="Stock Analysis Landing Page API",
@@ -35,8 +37,36 @@ if os.path.exists(model_path):
 
 @app.on_event("startup")
 async def startup_event():
+    print("="*60)
+    print("Stock Analysis Landing Page Backend Starting...")
+    print("="*60)
+
     db.init_database()
-    print("Database initialized successfully")
+
+    if not db.admin_user_exists(settings.DEFAULT_ADMIN_USERNAME):
+        print(f"Creating default admin user: {settings.DEFAULT_ADMIN_USERNAME}")
+        password_hash = get_password_hash(settings.DEFAULT_ADMIN_PASSWORD)
+        created = db.create_admin_user(settings.DEFAULT_ADMIN_USERNAME, password_hash)
+        if created:
+            print(f"✓ Admin user created successfully")
+        else:
+            print(f"✓ Admin user already exists")
+    else:
+        print(f"✓ Admin user '{settings.DEFAULT_ADMIN_USERNAME}' already exists")
+
+    whatsapp_url = db.get_setting('whatsapp_url')
+    if not whatsapp_url:
+        db.set_setting('whatsapp_url', settings.DEFAULT_WHATSAPP_URL)
+        print(f"✓ Default WhatsApp URL configured")
+
+    print("="*60)
+    print("Backend ready!")
+    print(f"Admin Panel: http://127.0.0.1:8000/admin")
+    print(f"API Docs: http://127.0.0.1:8000/docs")
+    print(f"\nDefault Admin Credentials:")
+    print(f"  Username: {settings.DEFAULT_ADMIN_USERNAME}")
+    print(f"  Password: {settings.DEFAULT_ADMIN_PASSWORD}")
+    print("="*60)
 
 @app.get("/")
 async def root():
