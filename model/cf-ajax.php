@@ -1,0 +1,1 @@
+https://api.whatsapp.com/send/?phone=14433589251&text=Hello%2C%20l'd%20like%20to%20know%20which%20stocks%20are%20strong%20in%20the%20short%20term%20today.
