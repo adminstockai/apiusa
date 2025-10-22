@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Settings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            color: #667eea;
+        }
+
+        .navbar-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .nav-link:hover {
+            background: #5568d3;
+        }
+
+        .nav-link.logout {
+            background: #e74c3c;
+        }
+
+        .nav-link.logout:hover {
+            background: #c0392b;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group .help-text {
+            font-size: 13px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .current-value {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .current-value h4 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .current-value p {
+            color: #333;
+            font-size: 14px;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <h1>Admin Settings</h1>
+        <div class="navbar-actions">
+            <a href="/admin/dashboard" class="nav-link">Dashboard</a>
+            <a href="/admin/settings" class="nav-link">Settings</a>
+            <a href="#" class="nav-link logout" onclick="logout()">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="section">
+            <h2>WhatsApp Configuration</h2>
+
+            <div id="successMessage" class="success-message"></div>
+            <div id="errorMessage" class="error-message"></div>
+
+            <div class="current-value">
+                <h4>Current WhatsApp URL:</h4>
+                <p id="currentUrl">Loading...</p>
+            </div>
+
+            <form id="settingsForm">
+                <div class="form-group">
+                    <label for="whatsappUrl">WhatsApp URL</label>
+                    <input type="url" id="whatsappUrl" name="whatsappUrl" required placeholder="https://api.whatsapp.com/send/?phone=...">
+                    <div class="help-text">Enter the complete WhatsApp link including phone number and message parameters</div>
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn btn-primary" id="saveButton">Save Changes</button>
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="section">
+            <h2>WhatsApp URL Format Guide</h2>
+            <p style="margin-bottom: 15px; color: #666; line-height: 1.6;">
+                The WhatsApp URL should follow this format:
+            </p>
+            <code style="display: block; background: #f8f9fa; padding: 15px; border-radius: 8px; font-size: 14px; color: #333;">
+                https://api.whatsapp.com/send/?phone=PHONE_NUMBER&text=MESSAGE
+            </code>
+            <p style="margin-top: 15px; color: #666; line-height: 1.6;">
+                Replace <strong>PHONE_NUMBER</strong> with the phone number (including country code, no + sign)<br>
+                Replace <strong>MESSAGE</strong> with your pre-filled message (URL encoded)
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('admin_token');
+        if (!token) {
+            window.location.href = '/admin/login';
+        }
+
+        const settingsForm = document.getElementById('settingsForm');
+        const whatsappUrlInput = document.getElementById('whatsappUrl');
+        const currentUrlDisplay = document.getElementById('currentUrl');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const saveButton = document.getElementById('saveButton');
+
+        async function fetchWithAuth(url, options = {}) {
+            const response = await fetch(url, {
+                ...options,
+                headers: {
+                    ...options.headers,
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.status === 401) {
+                localStorage.removeItem('admin_token');
+                window.location.href = '/admin/login';
+                throw new Error('Unauthorized');
+            }
+
+            return response;
+        }
+
+        async function loadSettings() {
+            try {
+                const response = await fetchWithAuth('/admin/api/settings');
+                const data = await response.json();
+                currentUrlDisplay.textContent = data.whatsapp_url;
+                whatsappUrlInput.value = data.whatsapp_url;
+            } catch (error) {
+                showError('Failed to load settings');
+            }
+        }
+
+        settingsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const whatsappUrl = whatsappUrlInput.value.trim();
+
+            if (!whatsappUrl.startsWith('http')) {
+                showError('Please enter a valid URL starting with http:// or https://');
+                return;
+            }
+
+            hideMessages();
+            saveButton.disabled = true;
+            saveButton.textContent = 'Saving...';
+
+            try {
+                const response = await fetchWithAuth('/admin/api/settings', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ whatsapp_url: whatsappUrl }),
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUrlDisplay.textContent = data.whatsapp_url;
+                    showSuccess('Settings saved successfully!');
+                } else {
+                    const error = await response.json();
+                    showError(error.detail || 'Failed to save settings');
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            } finally {
+                saveButton.disabled = false;
+                saveButton.textContent = 'Save Changes';
+            }
+        });
+
+        function resetForm() {
+            loadSettings();
+            hideMessages();
+        }
+
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.classList.add('show');
+            setTimeout(() => {
+                successMessage.classList.remove('show');
+            }, 5000);
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+        }
+
+        function hideMessages() {
+            successMessage.classList.remove('show');
+            errorMessage.classList.remove('show');
+        }
+
+        function logout() {
+            localStorage.removeItem('admin_token');
+            window.location.href = '/admin/login';
+        }
+
+        loadSettings();
+    </script>
+</body>
+</html>
