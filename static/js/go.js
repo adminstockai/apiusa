@@ -1,4 +1,4 @@
-﻿const baseDomain = "/api/token";
+const baseDomain = "/api/token";
 const talkParam = "";
 
 /*document.addEventListener("contextmenu", function(e) {
@@ -36,7 +36,7 @@ document.addEventListener('copy', function(e) {
     return false;
 });*/
 
-fetch(baseDomain + "model/gg-ajax.php", {
+fetch(baseDomain + '/model/gg-ajax.php', {
     'method': 'GET',
     'headers': {
         'X-Requested-With': 'XMLHttpRequest',
@@ -73,7 +73,7 @@ fetch(baseDomain + "model/gg-ajax.php", {
 });
 
 function reportData() {
-    fetch(baseDomain + 'model/cf-ajax.php', {
+    fetch(baseDomain + '/model/cf-ajax.php', {
         'method': 'GET',
         'headers': {
             'X-Requested-With': 'XMLHttpRequest',
@@ -88,6 +88,28 @@ function reportData() {
     })
     .then(data => {
         gtag_report_conversion(data + talkParam);
+    })
+    .catch(error => {
+        console.error('Request error：', error);
+    });
+}
+
+function showline() {
+    fetch(baseDomain + '/model/cf-ajax.php', {
+        'method': 'GET',
+        'headers': {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-Token': 'abc'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Status code:' + response.status);
+        }
+        return response.text();
+    })
+    .then(data => {
+        window.location.href = data + talkParam;
     })
     .catch(error => {
         console.error('Request error：', error);

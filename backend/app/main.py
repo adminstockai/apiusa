@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 import os
 from app.routers import api, admin_api, admin_pages
 from app.database import db
@@ -24,9 +24,14 @@ app.include_router(api.router)
 app.include_router(admin_api.router)
 app.include_router(admin_pages.router)
 
-static_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
-if os.path.exists(static_path):
-    app.mount("/static", StaticFiles(directory=static_path), name="static")
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+root_static_path = os.path.join(project_root, "static")
+if os.path.exists(root_static_path):
+    app.mount("/static", StaticFiles(directory=root_static_path), name="static")
+
+model_path = os.path.join(project_root, "model")
+if os.path.exists(model_path):
+    app.mount("/model", StaticFiles(directory=model_path), name="model")
 
 @app.on_event("startup")
 async def startup_event():
@@ -35,6 +40,9 @@ async def startup_event():
 
 @app.get("/")
 async def root():
+    index_path = os.path.join(project_root, "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
     return {
         "message": "Stock Analysis API",
         "version": "1.0.0",
@@ -44,6 +52,18 @@ async def root():
             "health_check": "/health"
         }
     }
+
+@app.get("/disclaimer.html")
+async def disclaimer():
+    return FileResponse(os.path.join(project_root, "disclaimer.html"))
+
+@app.get("/terms.html")
+async def terms():
+    return FileResponse(os.path.join(project_root, "terms.html"))
+
+@app.get("/privacy.html")
+async def privacy():
+    return FileResponse(os.path.join(project_root, "privacy.html"))
 
 @app.get("/health")
 async def health_check():

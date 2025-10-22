@@ -16,7 +16,7 @@ async def get_google_analytics():
       gtag('config', 'UA-XXXXXXXXX-X');
     </script>
     """
-    return Response(content=ga_code, media_type="text/html")
+    return {"pixel": ga_code}
 
 @router.get("/api/token/model/cf-ajax.php")
 async def get_whatsapp_link(request: Request):
