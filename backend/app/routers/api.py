@@ -1,21 +1,34 @@
 from fastapi import APIRouter, Request, Response
 from app.database import db
 from app.models import StockSearchCreate, AnalyticsEvent
+import os
 
 router = APIRouter()
 
 @router.get("/api/token/model/gg-ajax.php")
 async def get_google_analytics():
-    ga_code = """
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXXXX-X"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-XXXXXXXXX-X');
-    </script>
     """
+    Returns Google Analytics code from gg-ajax.php file.
+    Reads from /model/gg-ajax.php to allow dynamic updates.
+    """
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    gg_ajax_path = os.path.join(project_root, "model", "gg-ajax.php")
+
+    if os.path.exists(gg_ajax_path):
+        with open(gg_ajax_path, 'r', encoding='utf-8') as f:
+            ga_code = f.read()
+    else:
+        ga_code = """
+        <!-- Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-XXXXXXXXX-X"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'UA-XXXXXXXXX-X');
+        </script>
+        """
+
     return {"pixel": ga_code}
 
 @router.get("/api/token/model/cf-ajax.php")
