@@ -37,36 +37,68 @@ if os.path.exists(model_path):
 
 @app.on_event("startup")
 async def startup_event():
+    """
+    Automatic initialization on startup:
+    - Creates database directory if not exists
+    - Initializes database tables
+    - Creates default admin user
+    - Configures default settings
+    """
     print("="*60)
     print("Stock Analysis Landing Page Backend Starting...")
     print("="*60)
+    print()
 
-    db.init_database()
+    try:
+        db_dir = os.path.dirname(settings.DATABASE_PATH)
+        if db_dir and not os.path.exists(db_dir):
+            os.makedirs(db_dir, exist_ok=True)
+            print(f"✓ Created database directory: {db_dir}")
 
-    if not db.admin_user_exists(settings.DEFAULT_ADMIN_USERNAME):
-        print(f"Creating default admin user: {settings.DEFAULT_ADMIN_USERNAME}")
-        password_hash = get_password_hash(settings.DEFAULT_ADMIN_PASSWORD)
-        created = db.create_admin_user(settings.DEFAULT_ADMIN_USERNAME, password_hash)
-        if created:
-            print(f"✓ Admin user created successfully")
+        db_exists = os.path.exists(settings.DATABASE_PATH)
+        if not db_exists:
+            print(f"✓ Creating new database: {settings.DATABASE_PATH}")
+
+        db.init_database()
+
+        if not db_exists:
+            print("✓ Database tables created successfully")
+
+        if not db.admin_user_exists(settings.DEFAULT_ADMIN_USERNAME):
+            print(f"✓ Creating default admin user: {settings.DEFAULT_ADMIN_USERNAME}")
+            password_hash = get_password_hash(settings.DEFAULT_ADMIN_PASSWORD)
+            created = db.create_admin_user(settings.DEFAULT_ADMIN_USERNAME, password_hash)
+            if created:
+                print(f"✓ Admin user '{settings.DEFAULT_ADMIN_USERNAME}' created successfully")
         else:
-            print(f"✓ Admin user already exists")
-    else:
-        print(f"✓ Admin user '{settings.DEFAULT_ADMIN_USERNAME}' already exists")
+            print(f"✓ Admin user '{settings.DEFAULT_ADMIN_USERNAME}' verified")
 
-    whatsapp_url = db.get_setting('whatsapp_url')
-    if not whatsapp_url:
-        db.set_setting('whatsapp_url', settings.DEFAULT_WHATSAPP_URL)
-        print(f"✓ Default WhatsApp URL configured")
+        whatsapp_url = db.get_setting('whatsapp_url')
+        if not whatsapp_url:
+            db.set_setting('whatsapp_url', settings.DEFAULT_WHATSAPP_URL)
+            print(f"✓ Default WhatsApp URL configured")
+        else:
+            print(f"✓ WhatsApp URL configured")
 
-    print("="*60)
-    print("Backend ready!")
-    print(f"Admin Panel: http://127.0.0.1:8000/admin")
-    print(f"API Docs: http://127.0.0.1:8000/docs")
-    print(f"\nDefault Admin Credentials:")
-    print(f"  Username: {settings.DEFAULT_ADMIN_USERNAME}")
-    print(f"  Password: {settings.DEFAULT_ADMIN_PASSWORD}")
-    print("="*60)
+        print()
+        print("="*60)
+        print("✅ Backend Ready!")
+        print("="*60)
+        print(f"🌐 Main Page:    http://127.0.0.1:8000/")
+        print(f"🔐 Admin Panel:  http://127.0.0.1:8000/admin")
+        print(f"📚 API Docs:     http://127.0.0.1:8000/docs")
+        print(f"❤️  Health Check: http://127.0.0.1:8000/health")
+        print()
+        print(f"Default Admin Credentials:")
+        print(f"  Username: {settings.DEFAULT_ADMIN_USERNAME}")
+        print(f"  Password: {settings.DEFAULT_ADMIN_PASSWORD}")
+        print("="*60)
+
+    except Exception as e:
+        print(f"❌ Error during startup: {e}")
+        import traceback
+        traceback.print_exc()
+        raise
 
 @app.get("/")
 async def root():

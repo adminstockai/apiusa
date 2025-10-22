@@ -41,34 +41,35 @@ backend/
 
 ## Installation
 
-1. **Install Python dependencies**:
+**Install Python dependencies**:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. **Initialize the database**:
-```bash
-python init_db.py
-```
-
-This will create:
-- SQLite database with all required tables
-- Default admin user (username: adsadmin, password: Mm123567)
-- Default WhatsApp URL setting
-
 ## Running the Application
 
-### Using the startup script:
+**Simple one-step startup:**
 ```bash
-sh start.sh
+cd backend
+python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### Or directly with uvicorn:
-```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
+That's it! The application will automatically:
+- Create the `data/` directory if it doesn't exist
+- Initialize the SQLite database with all required tables
+- Create the default admin user (username: adsadmin, password: Mm123567)
+- Configure default settings (WhatsApp URL)
 
 The server will start on `http://localhost:8000`
+
+### Optional: Manual Database Initialization
+
+If you want to manually initialize the database before starting the server:
+```bash
+python3 init_db.py
+```
+
+Note: This is optional since the application automatically initializes everything on startup.
 
 ## API Endpoints
 
@@ -223,11 +224,6 @@ gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
 
 ### Database locked error:
 - SQLite doesn't handle high concurrency well. Consider using PostgreSQL for production.
-
-### Permission denied on start.sh:
-```bash
-chmod +x start.sh
-```
 
 ### Port already in use:
 ```bash

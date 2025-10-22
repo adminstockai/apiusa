@@ -1,54 +1,60 @@
 ========================================
-应用启动说明
+应用启动说明 / Application Startup Guide
 ========================================
 
-问题已解决！现在您的前端可以通过后端服务器访问了。
+✅ 自动初始化已启用！数据库和管理员账号会在启动时自动创建。
+✅ Auto-initialization enabled! Database and admin account are created automatically on startup.
 
-修改内容总结：
+快速启动 / Quick Start：
 ----------------
-1. 后端现在配置为提供前端 HTML 文件
-2. 静态资源（CSS、JS、图片）已正确挂载
-3. 添加了缺失的 showline() 函数用于 WhatsApp 按钮
-4. API 路径已修复，前端可以正确调用后端接口
-5. 添加了其他 HTML 页面的路由（disclaimer、terms、privacy）
-
-如何启动应用：
-----------------
-1. 进入 backend 目录：
+1. 进入 backend 目录 / Enter backend directory：
    cd backend
 
-2. 确保已安装依赖（如果还没安装）：
+2. 安装依赖（首次运行）/ Install dependencies (first time only)：
    pip install -r requirements.txt
-   或
+   或 / or
    python3 -m pip install -r requirements.txt
 
-3. 初始化数据库（首次运行）：
-   python3 init_db.py
-
-4. 启动服务器：
-   sh start.sh
-   或
+3. 启动服务器 / Start server：
    python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-访问应用：
-----------------
-- 主页面：http://localhost:8000
-- 管理员登录：http://localhost:8000/admin/login
-- API 文档：http://localhost:8000/docs
-- 健康检查：http://localhost:8000/health
+就这么简单！应用会自动完成以下操作：
+That's it! The application will automatically:
+✓ 创建数据库目录 / Create database directory
+✓ 初始化数据库表 / Initialize database tables
+✓ 创建默认管理员账号 / Create default admin account
+✓ 配置默认设置 / Configure default settings
 
-默认管理员账户：
+访问应用 / Access Application：
 ----------------
-用户名：adsadmin
-密码：Mm123567
+- 主页面 / Main page：http://localhost:8000
+- 管理员登录 / Admin login：http://localhost:8000/admin/login
+- API 文档 / API docs：http://localhost:8000/docs
+- 健康检查 / Health check：http://localhost:8000/health
 
-现在的架构：
+默认管理员账户 / Default Admin Credentials：
+----------------
+用户名 / Username：adsadmin
+密码 / Password：Mm123567
+
+⚠️ 重要提示：生产环境请修改默认密码！
+⚠️ Important: Change default password in production!
+
+应用架构 / Application Architecture：
 ----------------
 后端 FastAPI 服务器（端口 8000）同时提供：
-✓ 前端静态页面（index.html）
-✓ 静态资源（/static 目录）
-✓ API 接口（/api/token/...）
-✓ 管理员后台（/admin/...）
-✓ 其他页面（disclaimer、terms、privacy）
+Backend FastAPI server (port 8000) provides:
+✓ 前端静态页面 / Frontend static pages (index.html)
+✓ 静态资源 / Static assets (/static directory)
+✓ API 接口 / API endpoints (/api/token/...)
+✓ 管理员后台 / Admin panel (/admin/...)
+✓ 其他页面 / Other pages (disclaimer, terms, privacy)
 
-所有功能都通过一个服务器访问，不再需要单独的前端服务器！
+所有功能都通过一个服务器访问！
+All features accessible through a single server!
+
+可选操作 / Optional：
+----------------
+手动初始化数据库（可选，应用启动时会自动执行）：
+Manual database initialization (optional, auto-run on startup)：
+   python3 init_db.py
